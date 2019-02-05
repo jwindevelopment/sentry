@@ -551,8 +551,10 @@ class StoreView(APIView):
 
         data = event_manager.get_data()
         dict_data = dict(data)
+        data_size = len(json.dumps(dict_data))
 
-        if len(json.dumps(dict_data)) > 10000000:
+        if data_size > 10000000:
+            metrics.timing('events.size.rejected', data_size)
             raise APIForbidden("Event size exceeded 10MB after normalization.")
 
         agent = request.META.get('HTTP_USER_AGENT')
